@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sellerzy - Lista</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body class="loading">
+    <div class="page-container">
+        <div class="header-wrapper">
+            <header class="main-header" id="main-header">
+                <a href="#" class="header-title">Sellerzy</a>
+                <div class="header-actions">
+                    <a href="https://discord.gg/TWOJ_LINK" target="_blank" class="btn" id="discord-button">
+                        <span>Discord</span>
+                    </a>
+                    <button class="btn" id="logout-button" style="display: none;">Wyloguj</button>
+                </div>
+            </header>
+        </div>
+
+        <main>
+            <div id="items-container">
+                </div>
+        </main>
+    </div>
+
+    <div id="login-modal" class="modal-overlay">
+        <div class="modal-content">
+            <h2>Panel Admina</h2>
+            <div class="form-group">
+                <label>Hasło</label>
+                <input type="password" id="admin-password" placeholder="Wprowadź hasło...">
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-primary" id="login-confirm-btn">Zaloguj</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="add-item-modal" class="modal-overlay">
+        <div class="modal-content">
+            <h2>Dodaj Sellera</h2>
+            <div class="form-group"><label>Nazwa</label><input type="text" id="add-name"></div>
+            <div class="form-group"><label>Link (Bezpośredni)</label><input type="text" id="add-link"></div>
+            <div class="form-group"><label>URL Zdjęcia</label><input type="text" id="add-image"></div>
+            <div class="form-group"><label>Cena (¥)</label><input type="number" id="add-price"></div>
+            <div class="form-group"><label>Opis</label><textarea id="add-desc"></textarea></div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="hideModal(addItemModal)">Anuluj</button>
+                <button class="btn btn-primary" id="save-new-item">Zapisz</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="item-detail-modal" class="modal-overlay">
+        <div class="detail-modal-content">
+            <button class="detail-close-btn">&times;</button>
+            <div class="detail-modal-left">
+                <div class="detail-image-wrapper">
+                    <img id="detail-image" src="" alt="">
+                </div>
+            </div>
+            <div class="detail-modal-right">
+                <h2 id="detail-name"></h2>
+                <p id="detail-desc"></p>
+                <div class="detail-footer">
+                    <div class="detail-price"><span id="detail-price-val"></span> ¥</div>
+                    <a href="#" target="_blank" class="btn detail-buy-button" id="detail-buy-link">Odwiedź Sklep</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="script.js"></script>
+</body>
+</html>
