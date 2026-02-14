@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>KolekReps - Spreadsheet</title>
+<title>KolekReps - Sellerzy</title>
 <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/kacpe01/assets/refs/heads/main/image.png" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -20,13 +20,6 @@
     <header class="main-header" id="main-header">
       <a href="https://kolekreps.pages.dev/" class="header-title">KolekReps</a>
       <div class="header-actions">
-        <div class="agent-selector">
-          <button id="agent-button" class="btn">
-            <img id="agent-logo" src="" alt="Agent logo" class="agent-logo">
-            <span id="agent-name"></span>
-          </button>
-          <div id="agent-dropdown" class="agent-dropdown"></div>
-        </div>
         <a href="https://discord.gg/uwBEbaGzc8" target="_blank" rel="noopener noreferrer" id="discord-button" class="btn">Discord</a>
         <button id="logout-button" class="btn" style="display:none;">Wyloguj się</button>
       </div>
@@ -34,23 +27,6 @@
   </div>
 
   <main>
-    <div class="controls-container">
-      <input type="search" class="search-input" id="search-input" placeholder="Wyszukaj...">
-      <div class="filter-container">
-        <button class="btn filter-button" id="filter-btn">Filtry</button>
-        <div class="filter-dropdown" id="filter-dropdown">
-            <div class="filter-dropdown-header">
-                <h3>Filtrowanie i Sortowanie</h3>
-                <button id="clear-filters-btn" class="filter-clear-btn">Wyczyść wszystko</button>
-            </div>
-            <div class="filter-dropdown-content">
-                <div class="filter-column" id="desktop-tag-filters"></div>
-                <div class="filter-column" id="desktop-category-filters"></div>
-                <div class="filter-column" id="desktop-price-sort-filters"></div>
-            </div>
-        </div>
-      </div>
-    </div>
     <div id="items-container"></div>
     <div id="pagination-container" class="pagination-container"></div>
   </main>
@@ -81,20 +57,6 @@
     </div>
   </div>
 </div>
-<div id="filter-overlay" class="filter-overlay"></div>
-<aside id="filter-panel" class="filter-panel">
-    <div class="filter-panel-header">
-        <h3>Filtry</h3>
-        <button id="filter-panel-close-btn" class="filter-panel-close-btn" aria-label="Zamknij filtry">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 10.586l4.95-4.95 1.414 1.414-4.95 4.95 4.95 4.95-1.414 1.414-4.95-4.95-4.95 4.95-1.414-1.414 4.95-4.95-4.95-4.95L7.05 5.636z"></path></svg>
-        </button>
-    </div>
-    <div id="mobile-filters-container" class="filter-panel-content"></div>
-    <div class="filter-panel-footer">
-        <button id="filter-panel-apply-btn" class="btn filter-panel-apply-btn">Pokaż wyniki</button>
-    </div>
-</aside>
-
 <script type="module" src="script.js"></script>
 
 </body>

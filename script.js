@@ -152,69 +152,9 @@ document.addEventListener('DOMContentLoaded', () => {
             isYupoo: "Yupoo", 
             isRandom: "Random Batch" 
         };
-        
-        const AGENTS = {
-            mulebuy:   { 
-                name: 'Mulebuy',   
-                logo: 'https://raw.githubusercontent.com/kacpe01/assets/refs/heads/main/mulebuy.png',   
-                platforms: {
-                    weidian: (id) => `https://mulebuy.com/product?id=${id}&platform=WEIDIAN`,
-                    taobao: (id) => `https://mulebuy.com/product?id=${id}&platform=TAOBAO&ref=200000185`,
-                    '1688': (id) => `https://mulebuy.com/product?id=${id}&platform=ALI_1688&ref=`
-                }
-            },
-            kakobuy:   { 
-                name: 'Kakobuy',   
-                logo: 'https://raw.githubusercontent.com/kacpe01/assets/refs/heads/main/1200x1200bb.png',   
-                platforms: {
-                    weidian: (url) => `https://kakobuy.com/item/details?url=${encodeURIComponent(url)}`,
-                    taobao: (url) => `https://www.kakobuy.com/item/details?url=${encodeURIComponent(url)}&affcode=doppelfit`,
-                    '1688': (url) => `https://www.kakobuy.com/item/details?url=${encodeURIComponent(url)}&affcode=`
-                }
-            },
-            cnfans: { 
-                name: 'CNFans',    
-                logo: 'https://raw.githubusercontent.com/kacpe01/assets/refs/heads/main/0x0.png',    
-                platforms: {
-                    weidian: (id) => `https://cnfans.com/product?id=${id}&platform=WEIDIAN`,
-                    taobao: (id) => `https://cnfans.com/product/?shop_type=taobao&id=${id}&ref=53385`,
-                    '1688': (id) => `https://cnfans.com/product?id=${id}&platform=ALI_1688&ref=`
-                }
-            },
-            acbuy: { 
-                name: 'ACBuy',     
-                logo: 'https://raw.githubusercontent.com/kacpe01/assets/refs/heads/main/3333acbuy.png',     
-                platforms: {
-                    weidian: (id) => `https://www.acbuy.com/product?id=${id}&source=WD`,
-                    taobao: (id) => `https://www.acbuy.com/product/?id=${id}&source=TB&u=repmafia`,
-                    '1688': (id) => `https://www.acbuy.com/product/?id=${id}&source=AL&u=`
-                }
-            },
-            lovegobuy: { 
-                name: 'Lovegobuy', 
-                logo: 'https://raw.githubusercontent.com/kacpe01/assets/refs/heads/main/communityIcon_7puh8sbad05e1.png', 
-                platforms: {
-                    weidian: (id) => `https://lovegobuy.com/product?id=${id}&shop_type=weidian`,
-                    taobao: (id) => `https://lovegobuy.com/product?id=${id}&shop_type=taobao`,
-                    '1688': (id) => `https://lovegobuy.com/product?id=${id}&shop_type=ali_1688`
-                }
-            },
-            hoobuy: { 
-                name: 'Hoobuy',    
-                logo: 'https://raw.githubusercontent.com/kacpe01/assets/refs/heads/main/images.png',    
-                platforms: {
-                    weidian: (id) => `https://hoobuy.com/product/2/${id}`,
-                    taobao: (id) => `https://hoobuy.com/product/1/${id}`,
-                    '1688': (id) => `https://hoobuy.com/product/0/${id}`
-                }
-            }
-        };
 
-        let isAdmin = false, allItems = {}, activeTag = 'all', activeCategory = 'all', searchTerm = '', activeSort = 'default';
+        let isAdmin = false, allItems = {};
         let isFirstLoad = true;
-        let activePrice = { min: null, max: null };
-        let priceFilterTimeout;
-        let currentAgentKey;
         
         const PLN_TO_CNY_RATE = 1.80;
         const THREE_HOURS_IN_MS = 3 * 60 * 60 * 1000;
@@ -222,27 +162,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const mainHeader = document.getElementById('main-header');
         const discordButton = document.getElementById('discord-button'),
               logoutButton = document.getElementById("logout-button");
-        const itemsContainer = document.getElementById("items-container"),
-              searchInput = document.getElementById("search-input");
-        const filterBtn = document.getElementById('filter-btn'), 
-              filterDropdown = document.getElementById('filter-dropdown');
+        const itemsContainer = document.getElementById("items-container");
         const loginModal = document.getElementById("login-modal"), 
               addItemModal = document.getElementById("add-item-modal"), 
               editItemModal = document.getElementById("edit-item-modal"),
               itemDetailModal = document.getElementById('item-detail-modal');
-        
-        const agentButton = document.getElementById('agent-button'),
-              agentLogo = document.getElementById('agent-logo'),
-              agentName = document.getElementById('agent-name'),
-              agentDropdown = document.getElementById('agent-dropdown');
-
-        const filterOverlay = document.getElementById('filter-overlay'),
-              filterPanel = document.getElementById('filter-panel'),
-              mobileFiltersContainer = document.getElementById('mobile-filters-container'),
-              filterPanelCloseBtn = document.getElementById('filter-panel-close-btn'),
-              filterPanelApplyBtn = document.getElementById('filter-panel-apply-btn');
-        
-        const clearFiltersBtn = document.getElementById('clear-filters-btn');
 
         const detailCloseBtn = document.getElementById('detail-close-btn'),
               detailImage = document.getElementById('detail-image'),
@@ -251,34 +175,8 @@ document.addEventListener('DOMContentLoaded', () => {
               detailTagsCategories = document.getElementById('detail-tags-categories'),
               detailPrice = document.getElementById('detail-price'),
               detailBuyLink = document.getElementById('detail-buy-link');
-        
-        function getLinkInfo(url) {
-            if (!url) return null;
-            let platform = null;
-            if (url.includes('weidian.com')) platform = 'weidian';
-            else if (url.includes('taobao.com')) platform = 'taobao';
-            else if (url.includes('1688.com')) platform = '1688';
-            
-            const idMatch = url.match(/\d{10,}/g);
-            const id = idMatch ? idMatch[idMatch.length - 1] : null;
-
-            if (platform && id) {
-                return { platform, id };
-            }
-            return null;
-        }
-
-        function convertPurchaseLink(originalUrl) {
-            const info = getLinkInfo(originalUrl);
-            const agent = AGENTS[currentAgentKey];
-
-            if (info && agent) {
-                const formatFunction = agent.platforms[info.platform];
-                if (formatFunction) {
-                    return currentAgentKey === 'kakobuy' ? formatFunction(originalUrl) : formatFunction(info.id);
-                }
-            }
-            return '#';
+        function hasPurchaseLink(url) {
+            return Boolean(url && url.trim());
         }
 
         function renderItems(itemsToRender) {
@@ -324,7 +222,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
             ` : '';
 
-            const isPurchaseLinkAvailable = !!getLinkInfo(item.purchaseLink);
+            const isPurchaseLinkAvailable = hasPurchaseLink(item.purchaseLink);
             const buyButtonDisabled = !isPurchaseLinkAvailable ? 'disabled' : '';
             
             card.innerHTML = `
@@ -385,9 +283,8 @@ document.addEventListener('DOMContentLoaded', () => {
             
             detailPrice.innerHTML = item.price ? `<b>${item.price.toFixed(2)} PLN</b>` : '<b>Brak ceny</b>';
             
-            const convertedLink = convertPurchaseLink(item.purchaseLink);
-            if (convertedLink !== '#') {
-                detailBuyLink.href = convertedLink;
+            if (hasPurchaseLink(item.purchaseLink)) {
+                detailBuyLink.href = item.purchaseLink;
                 detailBuyLink.classList.remove('disabled');
             } else {
                 detailBuyLink.href = '#';
@@ -397,103 +294,20 @@ document.addEventListener('DOMContentLoaded', () => {
             showModal(itemDetailModal);
         }
 
-        function openFilterPanel() {
-            filterOverlay.classList.add('is-open');
-            filterPanel.classList.add('is-open');
-        }
-        function closeFilterPanel() {
-            filterOverlay.classList.remove('is-open');
-            filterPanel.classList.remove('is-open');
-        }
-
-        function updateAgentButtonUI(agentKey) {
-            const agent = AGENTS[agentKey];
-            if (agent) {
-                agentLogo.src = agent.logo;
-                agentName.textContent = agent.name;
-            }
-        }
-        
-        function populateAgentDropdown() {
-            agentDropdown.innerHTML = '';
-            for (const key in AGENTS) {
-                const agent = AGENTS[key];
-                const optionButton = document.createElement('button');
-                optionButton.className = 'agent-option';
-                optionButton.dataset.agentKey = key;
-                optionButton.innerHTML = `
-                    <img src="${agent.logo}" alt="${agent.name} logo" class="agent-logo">
-                    <span>${agent.name}</span>
-                `;
-                agentDropdown.appendChild(optionButton);
-            }
-        }
-
         const updateUIForAdmin = () => { discordButton.style.display = "none"; logoutButton.style.display = "inline-flex"; displayFilteredItems(); };
         const updateUIForGuest = () => { discordButton.style.display = "inline-flex"; logoutButton.style.display = "none"; displayFilteredItems(); };
         
         function setupFilterUI() {
-            const tagButtonsHTML = `<div class="buttons-wrapper">${[`<button data-filter="all" class="${'all' === activeTag ? 'active' : ''}">Wszystkie</button>`].concat(Object.keys(TAGS).map(key => `<button data-filter="${key}" class="${key === activeTag ? 'active' : ''}">${TAGS[key]}</button>`)).join('')}</div>`;
-            const categoryButtonsHTML = `<div class="buttons-wrapper">${[`<button data-category="all" class="${'all' === activeCategory ? 'active' : ''}">Wszystkie</button>`].concat(CATEGORIES.map(cat => `<button data-category="${cat}" class="${cat === activeCategory ? 'active' : ''}">${cat}</button>`)).join('')}</div>`;
-            const sortButtonsHTML = `<div class="buttons-wrapper">${`<button data-sort="default" class="${'default' === activeSort ? 'active' : ''}">Domyślnie</button><button data-sort="price_asc" class="${'price_asc' === activeSort ? 'active' : ''}">Cena: Rosnąco</button><button data-sort="price_desc" class="${'price_desc' === activeSort ? 'active' : ''}">Cena: Malejąco</button>`}</div>`;
-            
-            const priceInputsHTML = `
-                <div class="price-input-group">
-                    <input type="number" id="min-price-input" class="price-input" placeholder="Od">
-                    <input type="number" id="max-price-input" class="price-input" placeholder="Do">
-                </div>
-            `;
-
-            document.getElementById('desktop-tag-filters').innerHTML = `<h4><svg fill="currentColor" viewBox="0 0 20 20"><path d="M5.5 7a.5.5 0 000 1h9a.5.5 0 000-1h-9zM4 10.5a.5.5 0 01.5-.5h9a.5.5 0 010 1h-9a.5.5 0 01-.5-.5zM4.5 13a.5.5 0 000 1h9a.5.5 0 000-1h-9z"></path><path fill-rule="evenodd" d="M2 4a2 2 0 012-2h12a2 2 0 012 2v12a2 2 0 01-2 2H4a2 2 0 01-2-2V4zm2-1a1 1 0 00-1 1v12a1 1 0 001 1h12a1 1 0 001-1V4a1 1 0 00-1-1H4z"></path></svg>Tagi</h4>${tagButtonsHTML}`;
-            document.getElementById('desktop-category-filters').innerHTML = `<h4><svg fill="currentColor" viewBox="0 0 20 20"><path d="M3 3.5A1.5 1.5 0 014.5 2h11A1.5 1.5 0 0117 3.5v11a1.5 1.5 0 01-1.5 1.5h-11A1.5 1.5 0 013 14.5v-11zM4.5 3A.5.5 0 004 3.5v11a.5.5 0 00.5.5h11a.5.5 0 00.5-.5v-11a.5.5 0 00-.5-.5h-11z"></path><path d="M5 6.5A1.5 1.5 0 016.5 5h2A1.5 1.5 0 0110 6.5v2A1.5 1.5 0 018.5 10h-2A1.5 1.5 0 015 8.5v-2zM11.5 5A1.5 1.5 0 0113 6.5v2a1.5 1.5 0 01-1.5 1.5h-2A1.5 1.5 0 018 8.5V7A.5.5 0 018.5 6.5h2V6A.5.5 0 0111.5 5zM5 13.5A1.5 1.5 0 016.5 12h2A1.5 1.5 0 0110 13.5v-2A1.5 1.5 0 018.5 10h-2A1.5 1.5 0 015 11.5v2zM11.5 12A1.5 1.5 0 0113 13.5v-2a1.5 1.5 0 01-1.5-1.5h-2A1.5 1.5 0 018 11.5V13a.5.5 0 01.5.5h2v.5a.5.5 0 011.5-1z"></path></svg>Kategorie</h4>${categoryButtonsHTML}`;
-            document.getElementById('desktop-price-sort-filters').innerHTML = `<h4><svg fill="currentColor" viewBox="0 0 20 20"><path d="M10 4a.75.75 0 01.75.75v10.5a.75.75 0 01-1.5 0V4.75A.75.75 0 0110 4zM6.25 6A.75.75 0 017 6.75v6.5a.75.75 0 01-1.5 0V6.75A.75.75 0 016.25 6zM3.75 8A.75.75 0 014.5 8.75v2.5a.75.75 0 01-1.5 0V8.75A.75.75 0 013.75 8zM13.75 6A.75.75 0 0114.5 6.75v6.5a.75.75 0 01-1.5 0V6.75A.75.75 0 0113.75 6zM16.25 8A.75.75 0 0117 8.75v2.5a.75.75 0 01-1.5 0V8.75A.75.75 0 0116.25 8z"></path></svg>Cena</h4>${priceInputsHTML}<h4 style="margin-top: 24px;"><svg fill="currentColor" viewBox="0 0 20 20"><path d="M10.47 4.22a.75.75 0 00-1.06-.02l-3.5 3.25a.75.75 0 001.04 1.08L10 5.81l2.51 2.72a.75.75 0 001.08-1.04l-3-3.25zM9.53 15.78a.75.75 0 001.06.02l3.5-3.25a.75.75 0 00-1.04-1.08L10 14.19l-2.51-2.72a.75.75 0 00-1.08 1.04l3 3.25z"></path></svg>Sortuj wg</h4>${sortButtonsHTML}`;
-            
-            mobileFiltersContainer.innerHTML = `
-                <div class="filter-section"><h4>Tagi</h4><div class="filter-section-buttons">${tagButtonsHTML.replace(/<div class="buttons-wrapper">|<\/div>/g, '')}</div></div>
-                <div class="filter-section"><h4>Kategorie</h4><div class="filter-section-buttons">${categoryButtonsHTML.replace(/<div class="buttons-wrapper">|<\/div>/g, '')}</div></div>
-                <div class="filter-section"><h4>Sortuj wg</h4><div class="filter-section-buttons">${sortButtonsHTML.replace(/<div class="buttons-wrapper">|<\/div>/g, '')}</div></div>
-            `;
-            
             const categoryOptionsHTML = CATEGORIES.map(cat => `<option value="${cat}">${cat}</option>`).join('');
             ['add-item-category', 'edit-item-category'].forEach(id => document.getElementById(id).innerHTML = categoryOptionsHTML);
             const addTagCheckboxesHTML = Object.keys(TAGS).map(key => `<label><input type="checkbox" id="add-tag-${key}"> ${TAGS[key]}</label>`).join('');
             document.getElementById('add-item-tags').innerHTML = addTagCheckboxesHTML;
             const editTagCheckboxesHTML = Object.keys(TAGS).map(key => `<label><input type="checkbox" id="edit-tag-${key}"> ${TAGS[key]}</label>`).join('');
             document.getElementById('edit-item-tags').innerHTML = editTagCheckboxesHTML;
-
-            const minPriceInput = document.getElementById('min-price-input');
-            const maxPriceInput = document.getElementById('max-price-input');
-
-            const handlePriceInput = () => {
-                clearTimeout(priceFilterTimeout);
-                priceFilterTimeout = setTimeout(() => {
-                    activePrice.min = minPriceInput.value === '' ? null : Number(minPriceInput.value);
-                    activePrice.max = maxPriceInput.value === '' ? null : Number(maxPriceInput.value);
-                    displayFilteredItems();
-                }, 500);
-            };
-
-            minPriceInput.addEventListener('input', handlePriceInput);
-            maxPriceInput.addEventListener('input', handlePriceInput);
         }
         
         function displayFilteredItems() {
-            let filtered = Object.entries(allItems);
-            if (activeCategory !== 'all') filtered = filtered.filter(([, i]) => i.category === activeCategory);
-            if (activeTag !== 'all') filtered = filtered.filter(([, i]) => i.tags && i.tags[activeTag]);
-            if (searchTerm) filtered = filtered.filter(([, i]) => i.name && i.name.toLowerCase().includes(searchTerm));
-            
-            if (activePrice.min !== null) {
-                filtered = filtered.filter(([, item]) => (item.price || 0) >= activePrice.min);
-            }
-            if (activePrice.max !== null) {
-                filtered = filtered.filter(([, item]) => (item.price || 0) <= activePrice.max);
-            }
-
-            if (activeSort === 'price_asc') filtered.sort(([, a], [, b]) => (a.price || 0) - (b.price || 0));
-            else if (activeSort === 'price_desc') filtered.sort(([, a], [, b]) => (b.price || 0) - (a.price || 0));
-            
-            renderItems(Object.fromEntries(filtered));
+            renderItems(allItems);
         }
 
         logoutButton.onclick = () => { isAdmin = false; updateUIForGuest(); };
@@ -589,21 +403,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        clearFiltersBtn.addEventListener('click', () => {
-            activeTag = 'all';
-            activeCategory = 'all';
-            activeSort = 'default';
-            activePrice = { min: null, max: null };
-
-            document.getElementById('min-price-input').value = '';
-            document.getElementById('max-price-input').value = '';
-            
-            document.querySelectorAll(`[data-filter], [data-category], [data-sort]`).forEach(b => b.classList.remove('active'));
-            document.querySelectorAll(`[data-filter="all"], [data-category="all"], [data-sort="default"]`).forEach(b => b.classList.add('active'));
-            
-            displayFilteredItems();
-        });
-
         [loginModal, addItemModal, editItemModal, itemDetailModal].forEach(modal => { 
             modal.addEventListener('click', (e) => { 
                 if (e.target === modal) hideModal(modal); 
@@ -611,73 +410,12 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         detailCloseBtn.addEventListener('click', () => hideModal(itemDetailModal));
-        searchInput.addEventListener('input', (e) => { searchTerm = e.target.value.trim().toLowerCase(); displayFilteredItems(); });
-        
-        agentButton.addEventListener('click', (e) => {
-            e.stopPropagation();
-            agentDropdown.classList.toggle('show');
-        });
-
-        agentDropdown.addEventListener('click', (e) => {
-            const target = e.target.closest('.agent-option');
-            if (target && target.dataset.agentKey) {
-                currentAgentKey = target.dataset.agentKey;
-                localStorage.setItem('selectedAgent', currentAgentKey);
-                updateAgentButtonUI(currentAgentKey);
-                agentDropdown.classList.remove('show');
-            }
-        });
-
-        filterBtn.addEventListener('click', () => {
-            if (window.innerWidth <= 768) {
-                openFilterPanel();
-            } else {
-                filterDropdown.classList.toggle('show');
-            }
-        });
-
-        filterPanelCloseBtn.addEventListener('click', closeFilterPanel);
-        filterPanelApplyBtn.addEventListener('click', closeFilterPanel);
-        filterOverlay.addEventListener('click', closeFilterPanel);
-        
-        function handleFilterClick(e) {
-            const button = e.target.closest('button');
-            if (!button || (!button.dataset.filter && !button.dataset.category && !button.dataset.sort)) return;
-            
-            if (button.dataset.filter) {
-                activeTag = button.dataset.filter;
-                document.querySelectorAll(`[data-filter]`).forEach(b => b.classList.remove('active'));
-                document.querySelectorAll(`[data-filter="${activeTag}"]`).forEach(b => b.classList.add('active'));
-            } else if (button.dataset.category) {
-                activeCategory = button.dataset.category;
-                document.querySelectorAll(`[data-category]`).forEach(b => b.classList.remove('active'));
-                document.querySelectorAll(`[data-category="${activeCategory}"]`).forEach(b => b.classList.add('active'));
-            } else if (button.dataset.sort) {
-                activeSort = button.dataset.sort;
-                document.querySelectorAll(`[data-sort]`).forEach(b => b.classList.remove('active'));
-                document.querySelectorAll(`[data-sort="${activeSort}"]`).forEach(b => b.classList.add('active'));
-            }
-            displayFilteredItems();
-        }
-
-        filterDropdown.addEventListener('click', handleFilterClick);
-        mobileFiltersContainer.addEventListener('click', handleFilterClick);
-        
-        document.addEventListener('click', (e) => { 
-            if (!filterBtn.contains(e.target) && !filterDropdown.contains(e.target)) {
-                filterDropdown.classList.remove('show');
-            }
-             if (!agentButton.contains(e.target)) {
-                agentDropdown.classList.remove('show');
-            }
-        });
         window.addEventListener('scroll', () => { mainHeader.classList.toggle('scrolled', window.scrollY > 20); });
 
         const secretCode = atob('a2tvb2xsa2s=');
         let recentKeystrokes = '', correctEntries = 0, sequenceTimeout;
         window.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
-                if (filterPanel.classList.contains('is-open')) closeFilterPanel();
                 [loginModal, addItemModal, editItemModal, itemDetailModal].forEach(m => {
                     if (m.classList.contains('show')) hideModal(m);
                 });
@@ -702,9 +440,6 @@ document.addEventListener('DOMContentLoaded', () => {
             allItems = Object.fromEntries(Object.entries(data).sort(([,a],[,b]) => new Date(b.createdAt) - new Date(a.createdAt)));
             
             if (isFirstLoad) {
-                currentAgentKey = localStorage.getItem('selectedAgent') || 'mulebuy';
-                updateAgentButtonUI(currentAgentKey);
-                populateAgentDropdown();
                 setupFilterUI();
                 updateUIForGuest();
                 displayFilteredItems();

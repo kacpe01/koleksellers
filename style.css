@@ -505,69 +505,6 @@ main {
   font-size: 16px;
 }
 
-.agent-selector {
-  position: relative;
-}
-
-#agent-button {
-  background-color: var(--primary-color);
-  border: 1px solid var(--border-color);
-  min-width: 120px;
-}
-#agent-button:hover {
-  background-color: var(--border-color);
-}
-.agent-logo {
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  object-fit: cover;
-}
-.agent-dropdown {
-  display: none;
-  position: absolute;
-  top: calc(100% + 8px);
-  right: 0;
-  background-color: var(--primary-color);
-  border: 1px solid var(--border-color);
-  border-radius: 12px;
-  z-index: 110;
-  min-width: 180px;
-  box-shadow: var(--shadow-lg);
-  opacity: 0;
-  transform: translateY(-10px) scale(0.98);
-  transition: opacity 0.2s ease, transform 0.2s ease;
-  overflow: hidden;
-  padding: 8px;
-}
-.agent-dropdown.show {
-  display: block;
-  opacity: 1;
-  transform: translateY(0) scale(1);
-}
-.agent-option {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 10px 12px;
-  background: none;
-  border: none;
-  border-radius: 8px;
-  width: 100%;
-  color: var(--text-color);
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: 500;
-  transition: var(--transition-speed);
-}
-.agent-option:hover {
-  background-color: var(--border-color);
-}
-.agent-option img {
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-}
 
 @media (max-width: 768px) {
   .filter-dropdown {
@@ -582,12 +519,5 @@ main {
   }
   .controls-container {
       padding: 16px 0 32px;
-  }
-  #agent-name {
-    display: none;
-  }
-  #agent-button {
-    min-width: 0;
-    padding: 8px;
   }
 }
