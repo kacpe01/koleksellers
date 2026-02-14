@@ -1,79 +1,101 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sellerzy</title>
-    <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>KolekReps - Spreadsheet</title>
+<link rel="icon" type="image/png" href="https://raw.githubusercontent.com/kacpe01/assets/refs/heads/main/image.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
 </head>
 <body class="loading">
-    <div class="page-container">
-        <div class="header-wrapper">
-            <header class="main-header" id="main-header">
-                <a href="#" class="header-title">Sellerzy</a>
-                <div class="header-actions">
-                    <a href="https://discord.gg/TWÓJ_LINK" target="_blank" class="btn" id="discord-button">
-                        <span>Discord</span>
-                    </a>
-                    <button class="btn" id="logout-button" style="display: none;">Wyloguj</button>
-                </div>
-            </header>
+
+<!-- Interaktywne tło -->
+<canvas id="interactive-background"></canvas>
+
+<div class="page-container">
+  <div class="header-wrapper">
+    <header class="main-header" id="main-header">
+      <a href="https://kolekreps.pages.dev/" class="header-title">KolekReps</a>
+      <div class="header-actions">
+        <div class="agent-selector">
+          <button id="agent-button" class="btn">
+            <img id="agent-logo" src="" alt="Agent logo" class="agent-logo">
+            <span id="agent-name"></span>
+          </button>
+          <div id="agent-dropdown" class="agent-dropdown"></div>
         </div>
+        <a href="https://discord.gg/uwBEbaGzc8" target="_blank" rel="noopener noreferrer" id="discord-button" class="btn">Discord</a>
+        <button id="logout-button" class="btn" style="display:none;">Wyloguj się</button>
+      </div>
+    </header>
+  </div>
 
-        <main>
-            <div id="items-container">
-                </div>
-        </main>
-    </div>
-
-    <div id="login-modal" class="modal-overlay">
-        <div class="modal-content">
-            <h2>Panel Admina</h2>
-            <div class="form-group">
-                <label>Hasło</label>
-                <input type="password" id="admin-password" placeholder="Wprowadź hasło...">
+  <main>
+    <div class="controls-container">
+      <input type="search" class="search-input" id="search-input" placeholder="Wyszukaj...">
+      <div class="filter-container">
+        <button class="btn filter-button" id="filter-btn">Filtry</button>
+        <div class="filter-dropdown" id="filter-dropdown">
+            <div class="filter-dropdown-header">
+                <h3>Filtrowanie i Sortowanie</h3>
+                <button id="clear-filters-btn" class="filter-clear-btn">Wyczyść wszystko</button>
             </div>
-            <div class="modal-actions">
-                <button class="btn btn-primary" id="login-confirm-btn">Zaloguj</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="add-item-modal" class="modal-overlay">
-        <div class="modal-content">
-            <h2 id="modal-title">Dodaj Sellera</h2>
-            <div class="form-group"><label>Nazwa</label><input type="text" id="add-name"></div>
-            <div class="form-group"><label>Link bezpośredni (URL)</label><input type="text" id="add-link"></div>
-            <div class="form-group"><label>URL Zdjęcia</label><input type="text" id="add-image"></div>
-            <div class="form-group"><label>Cena (¥)</label><input type="number" id="add-price"></div>
-            <div class="form-group"><label>Opis</label><textarea id="add-desc" rows="3"></textarea></div>
-            <div class="modal-actions">
-                <button class="btn btn-secondary" id="close-add-modal">Anuluj</button>
-                <button class="btn btn-primary" id="save-item-btn">Zapisz</button>
+            <div class="filter-dropdown-content">
+                <div class="filter-column" id="desktop-tag-filters"></div>
+                <div class="filter-column" id="desktop-category-filters"></div>
+                <div class="filter-column" id="desktop-price-sort-filters"></div>
             </div>
         </div>
+      </div>
     </div>
+    <div id="items-container"></div>
+    <div id="pagination-container" class="pagination-container"></div>
+  </main>
+</div>
 
-    <div id="item-detail-modal" class="modal-overlay">
-        <div class="detail-modal-content">
-            <button class="detail-close-btn" id="detail-close-x">&times;</button>
-            <div class="detail-modal-left">
-                <div class="detail-image-wrapper">
-                    <img id="detail-image" src="" alt="Seller Image">
-                </div>
-            </div>
-            <div class="detail-modal-right">
-                <h2 id="detail-name"></h2>
-                <p id="detail-desc"></p>
-                <div class="detail-footer">
-                    <div class="detail-price"><span id="detail-price-val"></span> ¥</div>
-                    <a href="#" target="_blank" class="btn detail-buy-button" id="detail-buy-link">Odwiedź stronę</a>
-                </div>
-            </div>
-        </div>
+<!-- Wszystkie okna modalne i panele -->
+<div id="login-modal" class="modal-overlay"> <div class="modal-content"> <h2>Logowanie Admin</h2> <div class="form-group"><input id="login-username" type="text" placeholder="Nazwa uzytkownika" /></div> <div class="form-group"><input id="login-password" type="password" placeholder="Haslo" /></div> <div class="modal-actions"><button id="login-submit" class="btn-primary">Zaloguj</button></div> </div> </div>
+<div id="add-item-modal" class="modal-overlay"> <div class="modal-content"> <h2>Dodaj nowy przedmiot</h2> <div class="form-group"><label>Nazwa</label><input id="add-item-name" type="text" /></div> <div class="form-group"><label>Opis</label><textarea id="add-item-desc" rows="3"></textarea></div> <div class="form-group"><label>Cena (PLN)</label><input id="add-item-price" type="number" /></div> <div class="form-group"><label>Link do zakupu</label><input id="add-item-link" type="url" /></div> <div class="form-group"><label>Link do zdjęcia</label><input id="add-item-image" type="url" placeholder="https://raw.githubusercontent.com/..." /></div> <div class="form-group"><label>Kategoria</label><select id="add-item-category"></select></div> <div class="form-group"><label>Tagi</label><div class="tag-selection" id="add-item-tags"></div></div> <div class="modal-actions"><button id="add-item-cancel" class="btn-secondary">Anuluj</button><button id="add-item-submit" class="btn-primary">Dodaj</button></div> <div class="loader" id="add-item-loader"><div class="spinner"></div></div> </div> </div>
+<div id="edit-item-modal" class="modal-overlay"> <div class="modal-content" data-editing-key=""> <h2>Edytuj przedmiot</h2> <div class="form-group"><label>Nazwa</label><input id="edit-item-name" type="text" /></div> <div class="form-group"><label>Opis</label><textarea id="edit-item-desc" rows="3"></textarea></div> <div class="form-group"><label>Cena (PLN)</label><input id="edit-item-price" type="number" /></div> <div class="form-group"><label>Link do zakupu</label><input id="edit-item-link" type="url" /></div> <div class="form-group"><label>Link do zdjęcia</label><input id="edit-item-image" type="url" /></div> <div class="form-group"><label>Kategoria</label><select id="edit-item-category"></select></div> <div class="form-group"><label>Tagi</label><div class="tag-selection" id="edit-item-tags"></div></div> <div class="modal-actions"><button id="edit-item-cancel" class="btn-secondary">Anuluj</button><button id="edit-item-submit" class="btn-primary">Zapisz zmiany</button></div> <div class="loader" id="edit-item-loader"><div class="spinner"></div></div> </div> </div>
+<div id="item-detail-modal" class="modal-overlay">
+  <div class="detail-modal-content">
+    <button id="detail-close-btn" class="detail-close-btn" aria-label="Zamknij szczegóły">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 10.586l4.95-4.95 1.414 1.414-4.95 4.95 4.95 4.95-1.414 1.414-4.95-4.95-4.95 4.95-1.414-1.414 4.95-4.95-4.95-4.95L7.05 5.636z"></path></svg>
+    </button>
+    <div class="detail-modal-left">
+      <div class="detail-image-wrapper">
+        <img id="detail-image" src="" alt="Zdjęcie produktu">
+      </div>
+      <div id="detail-tags-categories" class="detail-tags-categories"></div>
     </div>
+    <div class="detail-modal-right">
+      <h2 id="detail-name"></h2>
+      <p id="detail-desc"></p>
+      <div class="detail-footer">
+        <div id="detail-price" class="detail-price"></div>
+        <a id="detail-buy-link" href="#" class="btn detail-buy-button" target="_blank" rel="noopener noreferrer">Kup</a>
+      </div>
+    </div>
+  </div>
+</div>
+<div id="filter-overlay" class="filter-overlay"></div>
+<aside id="filter-panel" class="filter-panel">
+    <div class="filter-panel-header">
+        <h3>Filtry</h3>
+        <button id="filter-panel-close-btn" class="filter-panel-close-btn" aria-label="Zamknij filtry">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 10.586l4.95-4.95 1.414 1.414-4.95 4.95 4.95 4.95-1.414 1.414-4.95-4.95-4.95 4.95-1.414-1.414 4.95-4.95-4.95-4.95L7.05 5.636z"></path></svg>
+        </button>
+    </div>
+    <div id="mobile-filters-container" class="filter-panel-content"></div>
+    <div class="filter-panel-footer">
+        <button id="filter-panel-apply-btn" class="btn filter-panel-apply-btn">Pokaż wyniki</button>
+    </div>
+</aside>
 
-    <script type="module" src="script.js"></script>
+<script type="module" src="script.js"></script>
+
 </body>
 </html>
